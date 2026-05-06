@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日本語ローマ字タイピングゲーム</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>🎮 日本語ローマ字タイピングゲーム</h1>
+            <p class="subtitle">パソコン向け | 複数の打ち方に対応</p>
+        </header>
+
+        <!-- スタート画面 -->
+        <div id="start-screen" class="screen active">
+            <div class="start-content">
+                <h2>タイピングゲームへようこそ！</h2>
+                <p>表示された日本語をローマ字で入力してください。</p>
+                <p class="feature-list">
+                    ✅ 複数の打ち方に対応（例: しゅくだい → shukudai / syukudai）<br>
+                    ✅ 促音・拗音対応<br>
+                    ✅ スコアとタイムアタック
+                </p>
+                <div class="difficulty-select">
+                    <h3>難易度を選択</h3>
+                    <button class="diff-btn" data-diff="easy">かんたん<br><small>短い単語</small></button>
+                    <button class="diff-btn" data-diff="normal">ふつう<br><small>日常単語</small></button>
+                    <button class="diff-btn" data-diff="hard">むずかしい<br><small>長文・難単語</small></button>
+                </div>
+                <button id="start-btn" class="primary-btn">ゲームスタート</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="stat">
+                    <span class="stat-label">スコア</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">残り時間</span>
+                    <span id="timer" class="stat-value">60</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">正解数</span>
+                    <span id="correct-count" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">連続正解</span>
+                    <span id="combo" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div class="word-display">
+                <div id="japanese" class="japanese-text"></div>
+                <div id="romaji-hint" class="romaji-hint"></div>
+                <div id="input-display" class="input-display"></div>
+            </div>
+
+            <div class="keyboard-hint">
+                <p>キーボードで入力してください（Enterでスキップ）</p>
+            </div>
+
+            <div class="progress-bar">
+                <div id="progress" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- リザルト画面 -->
+        <div id="result-screen" class="screen">
+            <div class="result-content">
+                <h2>ゲーム終了！</h2>
+                <div class="result-stats">
+                    <div class="result-item">
+                        <span class="result-label">最終スコア</span>
+                        <span id="final-score" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">正解数</span>
+                        <span id="final-correct" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">最大コンボ</span>
+                        <span id="final-combo" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">正確率</span>
+                        <span id="final-accuracy" class="result-value">0%</span>
+                    </div>
+                </div>
+                <div id="rank-display" class="rank-display"></div>
+                <button id="restart-btn" class="primary-btn">もう一度遊ぶ</button>
+                <button id="menu-btn" class="secondary-btn">メニューに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- キーボード入力用の隠しinput（モバイル対策） -->
+    <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+    <script src="js/romaji-patterns.js"></script>
+    <script src="js/word-data.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
