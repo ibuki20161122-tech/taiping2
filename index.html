@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -9,7 +10,7 @@
   body{font-family:'Noto Sans JP',sans-serif;background:#0a0a0f;min-height:100vh;display:flex;align-items:center;justify-content:center;color:#e0e0f0;}
   #root{width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;position:relative;min-height:560px;justify-content:center;}
   #root::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,#1a0a3a 0%,transparent 70%);pointer-events:none;}
-  .scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);pointer-events:none;}
+  .scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);pointer-events:none;}
   #s-start,#s-game,#s-result{position:relative;z-index:1;width:100%;display:none;flex-direction:column;align-items:center;gap:1.4rem;}
   .on{display:flex!important;}
   .title{font-family:'JetBrains Mono',monospace;font-size:2.2rem;font-weight:600;color:#a78bfa;text-shadow:0 0 30px rgba(167,139,250,.5);}
@@ -98,9 +99,9 @@
 </div>
 
 <script>
-// =====================================================
+// ===================================================
 // かな→ローマ字テーブル
-// =====================================================
+// ===================================================
 const TBL = {
   'あ':['a'],'い':['i'],'う':['u'],'え':['e'],'お':['o'],
   'か':['ka'],'き':['ki'],'く':['ku'],'け':['ke'],'こ':['ko'],
@@ -117,6 +118,7 @@ const TBL = {
   'だ':['da'],'で':['de'],'ど':['do'],
   'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
   'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
+  // 複合かな（必ず2文字キー）
   'きゃ':['kya'],'きゅ':['kyu'],'きょ':['kyo'],
   'しゃ':['sha','sya'],'しゅ':['shu','syu'],'しょ':['sho','syo'],
   'ちゃ':['cha','tya','cya'],'ちゅ':['chu','tyu','cyu'],'ちょ':['cho','tyo','cyo'],
@@ -130,16 +132,19 @@ const TBL = {
   'ぴゃ':['pya'],'ぴゅ':['pyu'],'ぴょ':['pyo'],
 };
 
-// =====================================================
-// かな文字列 → セグメント配列
+// ===================================================
+// parseKana: かな文字列 → セグメント配列
 //
-// 【っ の設計】
-//   っ は「次のかなの先頭子音1文字だけ」を patterns に持つ独立セグメント。
-//   例:  っぱ → seg{っ,['p']}  + seg{ぱ,['pa']}
-//        っし → seg{っ,['s']}  + seg{し,['shi','si']}
-//        っち → seg{っ,['c','t']} + seg{ち,['chi','ti']}
-//   → 入力例: しゅっぱつ = s-h-u-p-p-a-t-s-u (正しく9打鍵)
-// =====================================================
+// 【促音 っ の設計】
+//   っ は「次のかなの先頭子音1文字だけ」の独立セグメント。
+//   例: っぱ → {っ,['p']} + {ぱ,['pa']}
+//       っし → {っ,['s']} + {し,['shi','si']}
+//       っち → {っ,['c','t']} + {ち,['chi','ti']}
+//
+// 【小文字（ゃゅょ）の扱い】
+//   直前の文字と合わせて2文字複合として TBL 検索。
+//   例: きゃ→TBL['きゃ']=['kya']  しゅ→TBL['しゅ']=['shu','syu']
+// ===================================================
 function parseKana(str) {
   const segs = [];
   let i = 0;
@@ -147,27 +152,25 @@ function parseKana(str) {
 
     // ─── 促音 っ ───
     if (str[i] === 'っ') {
-      // 次のかなを先読み（2文字複合優先）して先頭子音を取得
       let nextPats = null;
       if (i + 1 < str.length) {
         const two = str.substring(i+1, i+3);
         const one = str[i+1];
         nextPats = TBL[two] || TBL[one];
       }
-      // 先頭子音を重複なく収集（例: chi,ti → c,t）
       const cSet = new Set();
       if (nextPats) {
         for (const p of nextPats) {
+          // 先頭が子音のもののみ（母音始まりは対象外）
           if (/[bcdfghjklmnpqrstvwxyz]/.test(p[0])) cSet.add(p[0]);
         }
       }
-      const pats = cSet.size ? [...cSet] : ['x']; // fallback
-      segs.push({ kana:'っ', patterns: pats });
+      segs.push({ kana: 'っ', patterns: cSet.size ? [...cSet] : ['x'] });
       i++;
       continue;
     }
 
-    // ─── 2文字複合優先 ───
+    // ─── 2文字複合優先（きゃ・しゅ・ちょ など） ───
     if (i + 1 < str.length) {
       const two = str.substring(i, i+2);
       if (TBL[two]) {
@@ -185,9 +188,9 @@ function parseKana(str) {
   return segs;
 }
 
-// =====================================================
+// ===================================================
 // 単語データ
-// =====================================================
+// ===================================================
 const WORDS = {
   easy:[
     {k:'ねこ'},{k:'いぬ'},{k:'さかな'},{k:'りんご'},{k:'みず'},{k:'そら'},
@@ -203,176 +206,207 @@ const WORDS = {
   hard:[
     {k:'しゅっぱつ'},{k:'きんきゅう'},{k:'りょこうしゃ'},{k:'さんぽみち'},
     {k:'しんぶんしゃ'},{k:'けいたいでんわ'},{k:'しゅとけん'},
-    {k:'きょうそうてき'},{k:'ぼうさいくんれん'},{k:'ちゃくちてん'},
-    {k:'じゅうしょ'},{k:'しょっぱい'},{k:'きって'},{k:'ざっし'},
-    {k:'ちょっかん'},{k:'しっかり'},{k:'ぴったり'},
+    {k:'きょうそうてき'},{k:'ぼうさいくんれん'},{k:'じゅうしょ'},
+    {k:'しょっぱい'},{k:'きって'},{k:'ざっし'},
+    {k:'ちょっかん'},{k:'しっかり'},{k:'ぴったり'},{k:'しゅくだい'},
   ],
 };
 const TIMES = {easy:60, normal:50, hard:40};
 
-// =====================================================
+// ===================================================
 // ゲーム状態
-// =====================================================
-let diff='easy';
+// ===================================================
+let diff = 'easy';
 let score=0, correct=0, missCnt=0, okKeys=0, allKeys=0;
 let timeLeft=60, maxTime=60, tmr=null, active=false;
 let used=[];
+
+// 現在の単語の入力状態
+// segs    : parseKana() の結果
+// si      : 現在のセグメントインデックス
+// committed: 確定済み入力文字列（緑表示）
+// pending : 現セグメントで入力中の文字列（未確定）
+// valid   : pending と前方一致するパターン候補
 let segs=[], si=0, committed='', pending='', valid=[];
 
-const $=id=>document.getElementById(id);
-const inp=$('inp');
+const $ = id => document.getElementById(id);
+const inp = $('inp');
 
-document.querySelectorAll('.db').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.db').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel'); diff=b.dataset.d;
+document.querySelectorAll('.db').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.db').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    diff = b.dataset.d;
   });
 });
 $('btn-start').addEventListener('click', startGame);
-$('btn-retry').addEventListener('click',()=>{
+$('btn-retry').addEventListener('click', () => {
   $('s-result').classList.remove('on');
   $('s-start').classList.add('on');
 });
-document.addEventListener('keydown',e=>{
-  if(!active&&e.code==='Space'&&$('s-start').classList.contains('on')){
+document.addEventListener('keydown', e => {
+  if (!active && e.code === 'Space' && $('s-start').classList.contains('on')) {
     e.preventDefault(); startGame();
   }
 });
 
-// =====================================================
-function startGame(){
+// ===================================================
+function startGame() {
   $('s-start').classList.remove('on');
   $('s-game').classList.add('on');
   score=0; correct=0; missCnt=0; okKeys=0; allKeys=0; used=[];
-  maxTime=TIMES[diff]; timeLeft=maxTime;
-  active=true;
+  maxTime = TIMES[diff]; timeLeft = maxTime;
+  active = true;
   updateStats(); nextWord();
-  inp.value=''; inp.focus();
+  inp.value = ''; inp.focus();
   inp.addEventListener('keydown', onKey);
-  tmr=setInterval(()=>{
+  tmr = setInterval(() => {
     timeLeft--;
-    $('v-time').textContent=timeLeft;
-    $('pbi').style.width=(timeLeft/maxTime*100)+'%';
-    if(timeLeft<=0) endGame();
-  },1000);
+    $('v-time').textContent = timeLeft;
+    $('pbi').style.width = (timeLeft / maxTime * 100) + '%';
+    if (timeLeft <= 0) endGame();
+  }, 1000);
 }
 
-function endGame(){
-  clearInterval(tmr); active=false;
+function endGame() {
+  clearInterval(tmr); active = false;
   inp.removeEventListener('keydown', onKey);
   $('s-game').classList.remove('on');
   $('s-result').classList.add('on');
-  const acc=allKeys>0?Math.round(okKeys/allKeys*100):100;
-  $('r-score').textContent=score;
-  $('r-correct').textContent=correct;
-  $('r-wpm').textContent=Math.round(correct*(60/maxTime));
-  $('r-acc').textContent=acc+'%';
-  $('r-stars').textContent=['★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'][
+  const acc = allKeys > 0 ? Math.round(okKeys / allKeys * 100) : 100;
+  $('r-score').textContent = score;
+  $('r-correct').textContent = correct;
+  $('r-wpm').textContent = Math.round(correct * (60 / maxTime));
+  $('r-acc').textContent = acc + '%';
+  $('r-stars').textContent = ['★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'][
     acc<60?0:acc<75?1:acc<85?2:acc<95?3:4];
 }
 
-function getWord(){
-  const pool=WORDS[diff];
-  let av=pool.filter(w=>!used.includes(w.k));
-  if(!av.length){used=[];av=pool;}
-  const w=av[Math.floor(Math.random()*av.length)];
+function getWord() {
+  const pool = WORDS[diff];
+  let av = pool.filter(w => !used.includes(w.k));
+  if (!av.length) { used = []; av = pool; }
+  const w = av[Math.floor(Math.random() * av.length)];
   used.push(w.k); return w;
 }
 
-function nextWord(){
-  const w=getWord();
-  $('v-kanji').textContent=w.k;
-  segs=parseKana(w.k);
-  si=0; committed=''; pending=''; valid=[...segs[0].patterns];
-  inp.value=''; $('v-err').textContent='';
+function nextWord() {
+  const w = getWord();
+  $('v-kanji').textContent = w.k;
+  segs = parseKana(w.k);
+  si = 0; committed = ''; pending = ''; valid = [...segs[0].patterns];
+  inp.value = ''; $('v-err').textContent = '';
   render();
 }
 
-// =====================================================
-// キー入力
-// =====================================================
-function onKey(e){
-  if(!active||e.key.length!==1) return;
+// ===================================================
+// キー入力（keydown で1文字ずつ処理）
+// ===================================================
+function onKey(e) {
+  if (!active || e.key.length !== 1) return;
   e.preventDefault();
 
-  const ch=e.key.toLowerCase();
+  const ch = e.key.toLowerCase(); // 大文字→小文字に正規化
   allKeys++;
 
-  const trial=pending+ch;
-  const matched=valid.filter(p=>p.startsWith(trial));
+  const trial = pending + ch;
+  const matched = valid.filter(p => p.startsWith(trial));
 
-  if(!matched.length){
+  if (matched.length === 0) {
+    // ミス：pendingはリセットせず、ミスとして記録
     missCnt++;
-    showErr(`✗ "${e.key}"  →  正しくは "${valid[0][pending.length]||'?'}"`);
-    updateStats(); return;
+    const exp = valid[0][pending.length] || '?';
+    showErr(`✗ "${e.key}"  →  正しくは "${exp}"`);
+    updateStats();
+    return;
   }
 
+  // 正解
   okKeys++;
-  pending=trial;
-  valid=matched;
+  pending = trial;
+  valid = matched;
 
-  // セグメント完了
-  if(valid.find(p=>p===pending)){
-    committed+=pending;
+  // セグメント完了チェック（完全一致パターンが存在する）
+  if (valid.find(p => p === pending)) {
+    committed += pending;
     si++;
-    pending='';
-    if(si>=segs.length){ wordDone(); return; }
-    valid=[...segs[si].patterns];
+    pending = '';
+    if (si >= segs.length) { wordDone(); return; }
+    // 次セグメントの全パターンを有効化（前のセグメントと独立）
+    valid = [...segs[si].patterns];
   }
 
-  $('v-err').textContent='';
-  updateStats(); render();
+  $('v-err').textContent = '';
+  updateStats();
+  render();
 }
 
-function wordDone(){
+function wordDone() {
   correct++;
-  // スコア：各セグメントの patterns[0] 長の合計 × 倍率
-  const len=segs.reduce((s,sg)=>s+sg.patterns[0].length,0);
-  score+=Math.floor(len*(diff==='hard'?15:diff==='normal'?10:7));
-  updateStats(); nextWord();
+  const len = segs.reduce((s, sg) => s + sg.patterns[0].length, 0);
+  score += Math.floor(len * (diff==='hard'?15:diff==='normal'?10:7));
+  updateStats();
+  nextWord();
 }
 
-function showErr(msg){
-  $('v-err').textContent=msg;
+function showErr(msg) {
+  $('v-err').textContent = msg;
   inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err');
-  setTimeout(()=>{ inp.classList.remove('err'); $('v-err').textContent=''; },600);
+  setTimeout(() => { inp.classList.remove('err'); $('v-err').textContent = ''; }, 600);
 }
 
-// =====================================================
-// レンダリング
-// =====================================================
-function render(){
-  let html='';
-  // 確定済み（緑）
-  for(const c of committed) html+=`<span class="t">${c}</span>`;
+// ===================================================
+// 表示レンダリング
+//
+// 【表示ルール】
+//  - committed（確定済み）: 入力した文字そのまま・緑
+//  - pending（入力中）: 入力した文字そのまま・緑
+//  - 現セグメント残り: valid[0] の pending 以降・紫(次)/灰(残)
+//  - 未来セグメント: segs[fi].patterns[0] 全体・灰
+// ===================================================
+function render() {
+  let html = '';
 
-  if(si<segs.length){
-    // 現セグメントpending（緑）
-    for(const c of pending) html+=`<span class="t">${c}</span>`;
-    // 現セグメント残り（ガイド）
-    const rest=valid[0].slice(pending.length);
-    for(let ri=0;ri<rest.length;ri++)
-      html+=`<span class="${ri===0?'c':'r'}">${rest[ri]}</span>`;
-    // 未来セグメント（灰）
-    for(let fi=si+1;fi<segs.length;fi++)
-      for(const c of segs[fi].patterns[0])
-        html+=`<span class="r">${c}</span>`;
+  // 確定済み（緑）
+  for (const c of committed) html += `<span class="t">${c}</span>`;
+
+  if (si < segs.length) {
+    // 現セグメントの入力済み部分（緑）
+    for (const c of pending) html += `<span class="t">${c}</span>`;
+
+    // 現セグメントの残り（ガイド表示は valid[0] のpending以降）
+    const guide = valid[0];
+    const rest = guide.slice(pending.length);
+    for (let ri = 0; ri < rest.length; ri++) {
+      html += `<span class="${ri === 0 ? 'c' : 'r'}">${rest[ri]}</span>`;
+    }
+
+    // 未来セグメント（灰色、常に patterns[0] で表示）
+    for (let fi = si + 1; fi < segs.length; fi++) {
+      for (const c of segs[fi].patterns[0]) {
+        html += `<span class="r">${c}</span>`;
+      }
+    }
   }
 
-  $('v-romaji').innerHTML=html;
+  $('v-romaji').innerHTML = html;
 
-  const alts=valid.filter(p=>p!==valid[0]);
-  $('v-alt').innerHTML=alts.length
-    ?'別の入力: '+alts.map(p=>`<span class="badge">${p}</span>`).join(' '):'';
+  // 別入力ヒント（現セグメントの代替パターン）
+  const alts = valid.filter(p => p !== valid[0]);
+  $('v-alt').innerHTML = alts.length
+    ? '別の入力: ' + alts.map(p => `<span class="badge">${p}</span>`).join(' ')
+    : '';
 
-  inp.value=committed+pending;
+  // 入力フィールドに入力済み文字を反映
+  inp.value = committed + pending;
 }
 
-function updateStats(){
-  $('v-score').textContent=score;
-  $('v-correct').textContent=correct;
-  $('v-miss').textContent=missCnt;
+function updateStats() {
+  $('v-score').textContent = score;
+  $('v-correct').textContent = correct;
+  $('v-miss').textContent = missCnt;
 }
 </script>
+
 </body>
 </html>
