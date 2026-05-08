@@ -1,109 +1,378 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日本語ローマ字タイピングゲーム</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>ローマ字タイピングゲーム</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans JP',sans-serif;background:#0a0a0f;min-height:100vh;display:flex;align-items:center;justify-content:center;color:#e0e0f0;}
+  #root{width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;position:relative;min-height:560px;justify-content:center;}
+  #root::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,#1a0a3a 0%,transparent 70%);pointer-events:none;}
+  .scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);pointer-events:none;}
+  #s-start,#s-game,#s-result{position:relative;z-index:1;width:100%;display:none;flex-direction:column;align-items:center;gap:1.4rem;}
+  .on{display:flex!important;}
+  .title{font-family:'JetBrains Mono',monospace;font-size:2.2rem;font-weight:600;color:#a78bfa;text-shadow:0 0 30px rgba(167,139,250,.5);}
+  .sub{font-size:.85rem;color:#6b7280;letter-spacing:.15em;text-transform:uppercase;}
+  .btn{background:transparent;border:1px solid #a78bfa;color:#a78bfa;padding:.7rem 2.2rem;font-size:1rem;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .2s;}
+  .btn:hover{background:rgba(167,139,250,.15);box-shadow:0 0 20px rgba(167,139,250,.3);}
+  .diffs{display:flex;gap:1rem;}
+  .db{background:transparent;border:1px solid #374151;color:#9ca3af;padding:.5rem 1.1rem;font-size:.85rem;cursor:pointer;border-radius:4px;transition:all .2s;}
+  .db.sel{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.1);}
+  .stats{display:flex;gap:2rem;justify-content:center;}
+  .sb{text-align:center;}
+  .sl{font-size:.7rem;color:#6b7280;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+  .sv{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;}
+  .sv.ac{color:#a78bfa;}
+  .kanji{font-size:2.8rem;font-weight:700;color:#f0f0ff;min-height:3.5rem;text-align:center;}
+  .romaji{font-family:'JetBrains Mono',monospace;font-size:1.5rem;letter-spacing:.15em;min-height:2rem;text-align:center;}
+  .t{color:#34d399;}
+  .c{color:#a78bfa;text-shadow:0 0 12px rgba(167,139,250,.8);animation:blink .7s step-end infinite;}
+  .r{color:#4b5563;}
+  @keyframes blink{50%{opacity:.3;}}
+  #inp{width:100%;max-width:500px;background:rgba(255,255,255,.03);border:1px solid #374151;border-radius:8px;padding:1rem 1.5rem;font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#e0e0f0;outline:none;caret-color:#a78bfa;transition:border-color .2s;}
+  #inp:focus{border-color:#a78bfa;box-shadow:0 0 0 2px rgba(167,139,250,.15);}
+  #inp.err{border-color:#ef4444;animation:shake .3s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .pb{width:100%;max-width:500px;height:4px;background:#1f2937;border-radius:2px;overflow:hidden;}
+  .pbi{height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .1s linear;}
+  .miss{font-size:.8rem;color:#ef4444;min-height:1.2rem;font-family:'JetBrains Mono',monospace;}
+  .alt{font-size:.72rem;color:#4b5563;font-family:'JetBrains Mono',monospace;min-height:1rem;}
+  .badge{display:inline-block;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:#a78bfa;font-size:.65rem;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;margin:0 2px;}
+  .rscore{font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:600;color:#a78bfa;text-shadow:0 0 40px rgba(167,139,250,.6);}
+  .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:400px;}
+  .ri{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.75rem;text-align:center;}
+  .ri .v{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;}
+  .ri .l{font-size:.7rem;color:#6b7280;}
+  .stars{font-size:1.2rem;color:#fbbf24;}
+</style>
 </head>
 <body>
-    <div class="game-container">
-        <header>
-            <h1>🎮 日本語ローマ字タイピングゲーム</h1>
-            <p class="subtitle">パソコン向け | 複数の打ち方に対応</p>
-        </header>
+<div id="root">
+  <div class="scanlines"></div>
 
-        <!-- スタート画面 -->
-        <div id="start-screen" class="screen active">
-            <div class="start-content">
-                <h2>タイピングゲームへようこそ！</h2>
-                <p>表示された日本語をローマ字で入力してください。</p>
-                <p class="feature-list">
-                    ✅ 複数の打ち方に対応（例: しゅくだい → shukudai / syukudai）<br>
-                    ✅ 促音・拗音対応<br>
-                    ✅ スコアとタイムアタック
-                </p>
-                <div class="difficulty-select">
-                    <h3>難易度を選択</h3>
-                    <button class="diff-btn" data-diff="easy">かんたん<br><small>短い単語</small></button>
-                    <button class="diff-btn" data-diff="normal">ふつう<br><small>日常単語</small></button>
-                    <button class="diff-btn" data-diff="hard">むずかしい<br><small>長文・難単語</small></button>
-                </div>
-                <button id="start-btn" class="primary-btn">ゲームスタート</button>
-            </div>
-        </div>
-
-        <!-- ゲーム画面 -->
-        <div id="game-screen" class="screen">
-            <div class="game-header">
-                <div class="stat">
-                    <span class="stat-label">スコア</span>
-                    <span id="score" class="stat-value">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">残り時間</span>
-                    <span id="timer" class="stat-value">60</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">正解数</span>
-                    <span id="correct-count" class="stat-value">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">連続正解</span>
-                    <span id="combo" class="stat-value">0</span>
-                </div>
-            </div>
-
-            <div class="word-display">
-                <div id="japanese" class="japanese-text"></div>
-                <div id="romaji-hint" class="romaji-hint"></div>
-                <div id="input-display" class="input-display"></div>
-            </div>
-
-            <div class="keyboard-hint">
-                <p>キーボードで入力してください（Enterでスキップ）</p>
-            </div>
-
-            <div class="progress-bar">
-                <div id="progress" class="progress-fill"></div>
-            </div>
-        </div>
-
-        <!-- リザルト画面 -->
-        <div id="result-screen" class="screen">
-            <div class="result-content">
-                <h2>ゲーム終了！</h2>
-                <div class="result-stats">
-                    <div class="result-item">
-                        <span class="result-label">最終スコア</span>
-                        <span id="final-score" class="result-value">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">正解数</span>
-                        <span id="final-correct" class="result-value">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">最大コンボ</span>
-                        <span id="final-combo" class="result-value">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">正確率</span>
-                        <span id="final-accuracy" class="result-value">0%</span>
-                    </div>
-                </div>
-                <div id="rank-display" class="rank-display"></div>
-                <button id="restart-btn" class="primary-btn">もう一度遊ぶ</button>
-                <button id="menu-btn" class="secondary-btn">メニューに戻る</button>
-            </div>
-        </div>
+  <div id="s-start" class="on">
+    <div class="title">ローマ字タイピング</div>
+    <div class="sub">ROMAJI TYPING GAME</div>
+    <div class="sub" style="font-size:.75rem;color:#374151;">難易度を選んでください</div>
+    <div class="diffs">
+      <button class="db sel" data-d="easy">かんたん</button>
+      <button class="db" data-d="normal">ふつう</button>
+      <button class="db" data-d="hard">むずかしい</button>
     </div>
+    <button class="btn" id="btn-start">ゲームスタート ▶</button>
+    <div style="font-size:.75rem;color:#374151;text-align:center;line-height:2;">
+      大文字・小文字どちらでもOK ／ Space キーでもスタート<br>
+      <span class="badge">shi</span><span class="badge">si</span>
+      <span class="badge">chi</span><span class="badge">ti</span>
+      <span class="badge">tsu</span><span class="badge">tu</span> など複数入力対応
+    </div>
+  </div>
 
-    <!-- キーボード入力用の隠しinput（モバイル対策） -->
-    <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div id="s-game">
+    <div class="stats">
+      <div class="sb"><div class="sl">スコア</div><div class="sv ac" id="v-score">0</div></div>
+      <div class="sb"><div class="sl">残り時間</div><div class="sv" id="v-time">60</div></div>
+      <div class="sb"><div class="sl">正答数</div><div class="sv" id="v-correct">0</div></div>
+      <div class="sb"><div class="sl">ミス</div><div class="sv" id="v-miss">0</div></div>
+    </div>
+    <div class="pb"><div class="pbi" id="pbi" style="width:100%"></div></div>
+    <div class="kanji" id="v-kanji">—</div>
+    <div class="romaji" id="v-romaji"></div>
+    <div class="alt" id="v-alt"></div>
+    <input id="inp" placeholder="ここに入力… (大文字小文字OK)" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div class="miss" id="v-err"></div>
+  </div>
 
-    <script src="js/romaji-patterns.js"></script>
-    <script src="js/word-data.js"></script>
-    <script src="js/game.js"></script>
+  <div id="s-result">
+    <div class="sub">RESULT</div>
+    <div class="rscore" id="r-score">0</div>
+    <div class="stars" id="r-stars">★★★★★</div>
+    <div class="rgrid">
+      <div class="ri"><div class="v" id="r-correct">0</div><div class="l">正答数</div></div>
+      <div class="ri"><div class="v" id="r-wpm">0</div><div class="l">WPM</div></div>
+      <div class="ri"><div class="v" id="r-acc">0%</div><div class="l">正確率</div></div>
+    </div>
+    <button class="btn" id="btn-retry">もう一度 ↩</button>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// かな→ローマ字テーブル
+// =====================================================
+const TBL = {
+  'あ':['a'],'い':['i'],'う':['u'],'え':['e'],'お':['o'],
+  'か':['ka'],'き':['ki'],'く':['ku'],'け':['ke'],'こ':['ko'],
+  'さ':['sa'],'し':['shi','si'],'す':['su'],'せ':['se'],'そ':['so'],
+  'た':['ta'],'ち':['chi','ti'],'つ':['tsu','tu'],'て':['te'],'と':['to'],
+  'な':['na'],'に':['ni'],'ぬ':['nu'],'ね':['ne'],'の':['no'],
+  'は':['ha'],'ひ':['hi'],'ふ':['fu','hu'],'へ':['he'],'ほ':['ho'],
+  'ま':['ma'],'み':['mi'],'む':['mu'],'め':['me'],'も':['mo'],
+  'や':['ya'],'ゆ':['yu'],'よ':['yo'],
+  'ら':['ra'],'り':['ri'],'る':['ru'],'れ':['re'],'ろ':['ro'],
+  'わ':['wa'],'を':['wo'],'ん':['n','nn'],
+  'が':['ga'],'ぎ':['gi'],'ぐ':['gu'],'げ':['ge'],'ご':['go'],
+  'ざ':['za'],'じ':['ji','zi'],'ず':['zu'],'ぜ':['ze'],'ぞ':['zo'],
+  'だ':['da'],'で':['de'],'ど':['do'],
+  'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
+  'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
+  'きゃ':['kya'],'きゅ':['kyu'],'きょ':['kyo'],
+  'しゃ':['sha','sya'],'しゅ':['shu','syu'],'しょ':['sho','syo'],
+  'ちゃ':['cha','tya','cya'],'ちゅ':['chu','tyu','cyu'],'ちょ':['cho','tyo','cyo'],
+  'にゃ':['nya'],'にゅ':['nyu'],'にょ':['nyo'],
+  'ひゃ':['hya'],'ひゅ':['hyu'],'ひょ':['hyo'],
+  'みゃ':['mya'],'みゅ':['myu'],'みょ':['myo'],
+  'りゃ':['rya'],'りゅ':['ryu'],'りょ':['ryo'],
+  'ぎゃ':['gya'],'ぎゅ':['gyu'],'ぎょ':['gyo'],
+  'じゃ':['ja','jya','zya'],'じゅ':['ju','jyu','zyu'],'じょ':['jo','jyo','zyo'],
+  'びゃ':['bya'],'びゅ':['byu'],'びょ':['byo'],
+  'ぴゃ':['pya'],'ぴゅ':['pyu'],'ぴょ':['pyo'],
+};
+
+// =====================================================
+// かな文字列 → セグメント配列
+//
+// 【っ の設計】
+//   っ は「次のかなの先頭子音1文字だけ」を patterns に持つ独立セグメント。
+//   例:  っぱ → seg{っ,['p']}  + seg{ぱ,['pa']}
+//        っし → seg{っ,['s']}  + seg{し,['shi','si']}
+//        っち → seg{っ,['c','t']} + seg{ち,['chi','ti']}
+//   → 入力例: しゅっぱつ = s-h-u-p-p-a-t-s-u (正しく9打鍵)
+// =====================================================
+function parseKana(str) {
+  const segs = [];
+  let i = 0;
+  while (i < str.length) {
+
+    // ─── 促音 っ ───
+    if (str[i] === 'っ') {
+      // 次のかなを先読み（2文字複合優先）して先頭子音を取得
+      let nextPats = null;
+      if (i + 1 < str.length) {
+        const two = str.substring(i+1, i+3);
+        const one = str[i+1];
+        nextPats = TBL[two] || TBL[one];
+      }
+      // 先頭子音を重複なく収集（例: chi,ti → c,t）
+      const cSet = new Set();
+      if (nextPats) {
+        for (const p of nextPats) {
+          if (/[bcdfghjklmnpqrstvwxyz]/.test(p[0])) cSet.add(p[0]);
+        }
+      }
+      const pats = cSet.size ? [...cSet] : ['x']; // fallback
+      segs.push({ kana:'っ', patterns: pats });
+      i++;
+      continue;
+    }
+
+    // ─── 2文字複合優先 ───
+    if (i + 1 < str.length) {
+      const two = str.substring(i, i+2);
+      if (TBL[two]) {
+        segs.push({ kana: two, patterns: TBL[two] });
+        i += 2;
+        continue;
+      }
+    }
+
+    // ─── 1文字 ───
+    const one = str[i];
+    segs.push({ kana: one, patterns: TBL[one] || [one] });
+    i++;
+  }
+  return segs;
+}
+
+// =====================================================
+// 単語データ
+// =====================================================
+const WORDS = {
+  easy:[
+    {k:'ねこ'},{k:'いぬ'},{k:'さかな'},{k:'りんご'},{k:'みず'},{k:'そら'},
+    {k:'はな'},{k:'つき'},{k:'やま'},{k:'かわ'},{k:'うみ'},{k:'きり'},
+    {k:'あさ'},{k:'ゆき'},{k:'かぜ'},{k:'ひかり'},{k:'くも'},{k:'でんき'},
+  ],
+  normal:[
+    {k:'さくらんぼ'},{k:'どうぶつ'},{k:'しんかんせん'},{k:'たいよう'},
+    {k:'こうえん'},{k:'えいご'},{k:'でんしゃ'},{k:'きょうしつ'},
+    {k:'おんがく'},{k:'しょくじ'},{k:'がっこう'},{k:'ともだち'},
+    {k:'にほんご'},{k:'かいもの'},{k:'おきなわ'},{k:'ふじさん'},{k:'しゅくだい'},
+  ],
+  hard:[
+    {k:'しゅっぱつ'},{k:'きんきゅう'},{k:'りょこうしゃ'},{k:'さんぽみち'},
+    {k:'しんぶんしゃ'},{k:'けいたいでんわ'},{k:'しゅとけん'},
+    {k:'きょうそうてき'},{k:'ぼうさいくんれん'},{k:'ちゃくちてん'},
+    {k:'じゅうしょ'},{k:'しょっぱい'},{k:'きって'},{k:'ざっし'},
+    {k:'ちょっかん'},{k:'しっかり'},{k:'ぴったり'},
+  ],
+};
+const TIMES = {easy:60, normal:50, hard:40};
+
+// =====================================================
+// ゲーム状態
+// =====================================================
+let diff='easy';
+let score=0, correct=0, missCnt=0, okKeys=0, allKeys=0;
+let timeLeft=60, maxTime=60, tmr=null, active=false;
+let used=[];
+let segs=[], si=0, committed='', pending='', valid=[];
+
+const $=id=>document.getElementById(id);
+const inp=$('inp');
+
+document.querySelectorAll('.db').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.db').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel'); diff=b.dataset.d;
+  });
+});
+$('btn-start').addEventListener('click', startGame);
+$('btn-retry').addEventListener('click',()=>{
+  $('s-result').classList.remove('on');
+  $('s-start').classList.add('on');
+});
+document.addEventListener('keydown',e=>{
+  if(!active&&e.code==='Space'&&$('s-start').classList.contains('on')){
+    e.preventDefault(); startGame();
+  }
+});
+
+// =====================================================
+function startGame(){
+  $('s-start').classList.remove('on');
+  $('s-game').classList.add('on');
+  score=0; correct=0; missCnt=0; okKeys=0; allKeys=0; used=[];
+  maxTime=TIMES[diff]; timeLeft=maxTime;
+  active=true;
+  updateStats(); nextWord();
+  inp.value=''; inp.focus();
+  inp.addEventListener('keydown', onKey);
+  tmr=setInterval(()=>{
+    timeLeft--;
+    $('v-time').textContent=timeLeft;
+    $('pbi').style.width=(timeLeft/maxTime*100)+'%';
+    if(timeLeft<=0) endGame();
+  },1000);
+}
+
+function endGame(){
+  clearInterval(tmr); active=false;
+  inp.removeEventListener('keydown', onKey);
+  $('s-game').classList.remove('on');
+  $('s-result').classList.add('on');
+  const acc=allKeys>0?Math.round(okKeys/allKeys*100):100;
+  $('r-score').textContent=score;
+  $('r-correct').textContent=correct;
+  $('r-wpm').textContent=Math.round(correct*(60/maxTime));
+  $('r-acc').textContent=acc+'%';
+  $('r-stars').textContent=['★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'][
+    acc<60?0:acc<75?1:acc<85?2:acc<95?3:4];
+}
+
+function getWord(){
+  const pool=WORDS[diff];
+  let av=pool.filter(w=>!used.includes(w.k));
+  if(!av.length){used=[];av=pool;}
+  const w=av[Math.floor(Math.random()*av.length)];
+  used.push(w.k); return w;
+}
+
+function nextWord(){
+  const w=getWord();
+  $('v-kanji').textContent=w.k;
+  segs=parseKana(w.k);
+  si=0; committed=''; pending=''; valid=[...segs[0].patterns];
+  inp.value=''; $('v-err').textContent='';
+  render();
+}
+
+// =====================================================
+// キー入力
+// =====================================================
+function onKey(e){
+  if(!active||e.key.length!==1) return;
+  e.preventDefault();
+
+  const ch=e.key.toLowerCase();
+  allKeys++;
+
+  const trial=pending+ch;
+  const matched=valid.filter(p=>p.startsWith(trial));
+
+  if(!matched.length){
+    missCnt++;
+    showErr(`✗ "${e.key}"  →  正しくは "${valid[0][pending.length]||'?'}"`);
+    updateStats(); return;
+  }
+
+  okKeys++;
+  pending=trial;
+  valid=matched;
+
+  // セグメント完了
+  if(valid.find(p=>p===pending)){
+    committed+=pending;
+    si++;
+    pending='';
+    if(si>=segs.length){ wordDone(); return; }
+    valid=[...segs[si].patterns];
+  }
+
+  $('v-err').textContent='';
+  updateStats(); render();
+}
+
+function wordDone(){
+  correct++;
+  // スコア：各セグメントの patterns[0] 長の合計 × 倍率
+  const len=segs.reduce((s,sg)=>s+sg.patterns[0].length,0);
+  score+=Math.floor(len*(diff==='hard'?15:diff==='normal'?10:7));
+  updateStats(); nextWord();
+}
+
+function showErr(msg){
+  $('v-err').textContent=msg;
+  inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err');
+  setTimeout(()=>{ inp.classList.remove('err'); $('v-err').textContent=''; },600);
+}
+
+// =====================================================
+// レンダリング
+// =====================================================
+function render(){
+  let html='';
+  // 確定済み（緑）
+  for(const c of committed) html+=`<span class="t">${c}</span>`;
+
+  if(si<segs.length){
+    // 現セグメントpending（緑）
+    for(const c of pending) html+=`<span class="t">${c}</span>`;
+    // 現セグメント残り（ガイド）
+    const rest=valid[0].slice(pending.length);
+    for(let ri=0;ri<rest.length;ri++)
+      html+=`<span class="${ri===0?'c':'r'}">${rest[ri]}</span>`;
+    // 未来セグメント（灰）
+    for(let fi=si+1;fi<segs.length;fi++)
+      for(const c of segs[fi].patterns[0])
+        html+=`<span class="r">${c}</span>`;
+  }
+
+  $('v-romaji').innerHTML=html;
+
+  const alts=valid.filter(p=>p!==valid[0]);
+  $('v-alt').innerHTML=alts.length
+    ?'別の入力: '+alts.map(p=>`<span class="badge">${p}</span>`).join(' '):'';
+
+  inp.value=committed+pending;
+}
+
+function updateStats(){
+  $('v-score').textContent=score;
+  $('v-correct').textContent=correct;
+  $('v-miss').textContent=missCnt;
+}
+</script>
 </body>
 </html>
