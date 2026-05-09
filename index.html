@@ -40,35 +40,73 @@
   .miss{font-size:.8rem;color:#ef4444;min-height:1.2rem;font-family:'JetBrains Mono',monospace;}
   .alt{font-size:.72rem;color:#4b5563;font-family:'JetBrains Mono',monospace;min-height:1rem;}
   .badge{display:inline-block;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:#a78bfa;font-size:.65rem;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;margin:0 2px;}
-  .rscore{font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:600;color:#a78bfa;text-shadow:0 0 40px rgba(167,139,250,.6);}
-  .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:400px;}
-  .ri{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.75rem;text-align:center;}
-  .ri .v{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;}
-  .ri .l{font-size:.7rem;color:#6b7280;}
-  .stars{font-size:1.2rem;color:#fbbf24;}
+
+/* ── リザルト ── */
+.rscore{font-family:‘JetBrains Mono’,monospace;font-size:4rem;font-weight:600;color:#a78bfa;text-shadow:0 0 40px rgba(167,139,250,.6);}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:420px;}
+.ri{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.75rem;text-align:center;}
+.ri .v{font-family:‘JetBrains Mono’,monospace;font-size:1.4rem;font-weight:600;}
+.ri .l{font-size:.7rem;color:#6b7280;}
+.stars{font-size:1.2rem;color:#fbbf24;}
+
+/* ── ハイスコアバナー ── */
+.hs-banner{
+display:flex;align-items:center;gap:.6rem;
+background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);
+border-radius:8px;padding:.6rem 1.2rem;font-family:‘JetBrains Mono’,monospace;
+font-size:.9rem;
+}
+.hs-banner .crown{font-size:1.1rem;}
+.hs-banner .hs-label{color:#6b7280;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;}
+.hs-banner .hs-val{color:#fbbf24;font-size:1.3rem;font-weight:600;}
+.new-record{
+font-family:‘JetBrains Mono’,monospace;font-size:.85rem;color:#34d399;
+letter-spacing:.1em;animation:pop .4s ease;
+}
+@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+/* ── スタート画面のハイスコア表示 ── */
+.hs-grid{display:flex;gap:1rem;}
+.hs-card{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.6rem 1rem;text-align:center;min-width:90px;}
+.hs-card .hcl{font-size:.65rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.hs-card .hcv{font-family:‘JetBrains Mono’,monospace;font-size:1.1rem;color:#fbbf24;font-weight:600;}
+
+.hint-line{font-size:.75rem;color:#374151;text-align:center;line-height:2;}
 </style>
+
 </head>
 <body>
 <div id="root">
   <div class="scanlines"></div>
 
+  <!-- ── スタート画面 ── -->
+
   <div id="s-start" class="on">
     <div class="title">ローマ字タイピング</div>
     <div class="sub">ROMAJI TYPING GAME</div>
-    <div class="sub" style="font-size:.75rem;color:#374151;">難易度を選んでください</div>
-    <div class="diffs">
-      <button class="db sel" data-d="easy">かんたん</button>
-      <button class="db" data-d="normal">ふつう</button>
-      <button class="db" data-d="hard">むずかしい</button>
-    </div>
-    <button class="btn" id="btn-start">ゲームスタート ▶</button>
-    <div style="font-size:.75rem;color:#374151;text-align:center;line-height:2;">
-      大文字・小文字どちらでもOK ／ Space キーでもスタート<br>
-      <span class="badge">shi</span><span class="badge">si</span>
-      <span class="badge">chi</span><span class="badge">ti</span>
-      <span class="badge">tsu</span><span class="badge">tu</span> など複数入力対応
-    </div>
+
+```
+<!-- ハイスコア一覧 -->
+<div class="hs-grid" id="start-hs"></div>
+
+<div class="sub" style="font-size:.75rem;color:#374151;">難易度を選んでください</div>
+<div class="diffs">
+  <button class="db sel" data-d="easy">かんたん</button>
+  <button class="db" data-d="normal">ふつう</button>
+  <button class="db" data-d="hard">むずかしい</button>
+</div>
+<button class="btn" id="btn-start">ゲームスタート ▶</button>
+<div class="hint-line">
+  Space キーでスタート ／ 大文字・小文字どちらでもOK<br>
+  <span class="badge">shi</span><span class="badge">si</span>
+  <span class="badge">chi</span><span class="badge">ti</span>
+  <span class="badge">tsu</span><span class="badge">tu</span> など複数入力対応
+</div>
+```
+
   </div>
+
+  <!-- ── ゲーム画面 ── -->
 
   <div id="s-game">
     <div class="stats">
@@ -85,20 +123,51 @@
     <div class="miss" id="v-err"></div>
   </div>
 
+  <!-- ── リザルト画面 ── -->
+
   <div id="s-result">
     <div class="sub">RESULT</div>
     <div class="rscore" id="r-score">0</div>
     <div class="stars" id="r-stars">★★★★★</div>
+    <div id="r-newrecord"></div>
+    <!-- ハイスコアバナー -->
+    <div class="hs-banner">
+      <span class="crown">👑</span>
+      <div>
+        <div class="hs-label">ハイスコア</div>
+        <div class="hs-val" id="r-hs">0</div>
+      </div>
+    </div>
     <div class="rgrid">
       <div class="ri"><div class="v" id="r-correct">0</div><div class="l">正答数</div></div>
       <div class="ri"><div class="v" id="r-wpm">0</div><div class="l">WPM</div></div>
       <div class="ri"><div class="v" id="r-acc">0%</div><div class="l">正確率</div></div>
     </div>
-    <button class="btn" id="btn-retry">もう一度 ↩</button>
+    <button class="btn" id="btn-retry">もう一度 ↩  <span style="font-size:.7rem;opacity:.6;">Space</span></button>
   </div>
 </div>
 
 <script>
+// ===================================================
+// クッキー操作
+// ===================================================
+function setCookie(name, value, days) {
+  const exp = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${exp};path=/;SameSite=Lax`;
+}
+function getCookie(name) {
+  const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+// ハイスコアをクッキーから読む（難易度別）
+function loadHS(d) {
+  return parseInt(getCookie('hs_' + d) || '0', 10);
+}
+function saveHS(d, val) {
+  setCookie('hs_' + d, val, 365); // 1年保存
+}
+
 // ===================================================
 // かな→ローマ字テーブル
 // ===================================================
@@ -118,7 +187,6 @@ const TBL = {
   'だ':['da'],'で':['de'],'ど':['do'],
   'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
   'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
-  // 複合かな（必ず2文字キー）
   'きゃ':['kya'],'きゅ':['kyu'],'きょ':['kyo'],
   'しゃ':['sha','sya'],'しゅ':['shu','syu'],'しょ':['sho','syo'],
   'ちゃ':['cha','tya','cya'],'ちゅ':['chu','tyu','cyu'],'ちょ':['cho','tyo','cyo'],
@@ -132,25 +200,10 @@ const TBL = {
   'ぴゃ':['pya'],'ぴゅ':['pyu'],'ぴょ':['pyo'],
 };
 
-// ===================================================
-// parseKana: かな文字列 → セグメント配列
-//
-// 【促音 っ の設計】
-//   っ は「次のかなの先頭子音1文字だけ」の独立セグメント。
-//   例: っぱ → {っ,['p']} + {ぱ,['pa']}
-//       っし → {っ,['s']} + {し,['shi','si']}
-//       っち → {っ,['c','t']} + {ち,['chi','ti']}
-//
-// 【小文字（ゃゅょ）の扱い】
-//   直前の文字と合わせて2文字複合として TBL 検索。
-//   例: きゃ→TBL['きゃ']=['kya']  しゅ→TBL['しゅ']=['shu','syu']
-// ===================================================
 function parseKana(str) {
   const segs = [];
   let i = 0;
   while (i < str.length) {
-
-    // ─── 促音 っ ───
     if (str[i] === 'っ') {
       let nextPats = null;
       if (i + 1 < str.length) {
@@ -159,30 +212,17 @@ function parseKana(str) {
         nextPats = TBL[two] || TBL[one];
       }
       const cSet = new Set();
-      if (nextPats) {
-        for (const p of nextPats) {
-          // 先頭が子音のもののみ（母音始まりは対象外）
-          if (/[bcdfghjklmnpqrstvwxyz]/.test(p[0])) cSet.add(p[0]);
-        }
-      }
-      segs.push({ kana: 'っ', patterns: cSet.size ? [...cSet] : ['x'] });
-      i++;
-      continue;
+      if (nextPats) for (const p of nextPats)
+        if (/[bcdfghjklmnpqrstvwxyz]/.test(p[0])) cSet.add(p[0]);
+      segs.push({ kana:'っ', patterns: cSet.size ? [...cSet] : ['x'] });
+      i++; continue;
     }
-
-    // ─── 2文字複合優先（きゃ・しゅ・ちょ など） ───
     if (i + 1 < str.length) {
       const two = str.substring(i, i+2);
-      if (TBL[two]) {
-        segs.push({ kana: two, patterns: TBL[two] });
-        i += 2;
-        continue;
-      }
+      if (TBL[two]) { segs.push({ kana:two, patterns:TBL[two] }); i+=2; continue; }
     }
-
-    // ─── 1文字 ───
     const one = str[i];
-    segs.push({ kana: one, patterns: TBL[one] || [one] });
+    segs.push({ kana:one, patterns:TBL[one]||[one] });
     i++;
   }
   return segs;
@@ -212,6 +252,7 @@ const WORDS = {
   ],
 };
 const TIMES = {easy:60, normal:50, hard:40};
+const DIFF_LABEL = {easy:'かんたん', normal:'ふつう', hard:'むずかしい'};
 
 // ===================================================
 // ゲーム状態
@@ -220,18 +261,28 @@ let diff = 'easy';
 let score=0, correct=0, missCnt=0, okKeys=0, allKeys=0;
 let timeLeft=60, maxTime=60, tmr=null, active=false;
 let used=[];
-
-// 現在の単語の入力状態
-// segs    : parseKana() の結果
-// si      : 現在のセグメントインデックス
-// committed: 確定済み入力文字列（緑表示）
-// pending : 現セグメントで入力中の文字列（未確定）
-// valid   : pending と前方一致するパターン候補
 let segs=[], si=0, committed='', pending='', valid=[];
 
 const $ = id => document.getElementById(id);
 const inp = $('inp');
 
+// ===================================================
+// スタート画面のハイスコア表示
+// ===================================================
+function renderStartHS() {
+  const diffs = ['easy','normal','hard'];
+  $('start-hs').innerHTML = diffs.map(d => {
+    const hs = loadHS(d);
+    return `<div class="hs-card">
+      <div class="hcl">${DIFF_LABEL[d]}</div>
+      <div class="hcv">${hs > 0 ? hs : '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================================================
+// ボタン・キーバインド
+// ===================================================
 document.querySelectorAll('.db').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('.db').forEach(x => x.classList.remove('sel'));
@@ -239,17 +290,43 @@ document.querySelectorAll('.db').forEach(b => {
     diff = b.dataset.d;
   });
 });
+
 $('btn-start').addEventListener('click', startGame);
-$('btn-retry').addEventListener('click', () => {
-  $('s-result').classList.remove('on');
-  $('s-start').classList.add('on');
-});
+$('btn-retry').addEventListener('click', goToStart);
+
 document.addEventListener('keydown', e => {
-  if (!active && e.code === 'Space' && $('s-start').classList.contains('on')) {
-    e.preventDefault(); startGame();
+  // Esc: ゲーム中にメニューへ戻る
+  if (e.code === 'Escape' && active) {
+    e.preventDefault();
+    clearInterval(tmr);
+    active = false;
+    inp.removeEventListener('keydown', onKey);
+    $('s-game').classList.remove('on');
+    $('s-start').classList.add('on');
+    renderStartHS();
+    return;
+  }
+
+  if (e.code !== 'Space') return;
+
+  // スタート画面: Space でゲーム開始
+  if (!active && $('s-start').classList.contains('on')) {
+    e.preventDefault(); startGame(); return;
+  }
+  // リザルト画面: Space でスタート画面に戻る
+  if (!active && $('s-result').classList.contains('on')) {
+    e.preventDefault(); goToStart(); return;
   }
 });
 
+function goToStart() {
+  $('s-result').classList.remove('on');
+  $('s-start').classList.add('on');
+  renderStartHS();
+}
+
+// ===================================================
+// ゲーム開始 / 終了
 // ===================================================
 function startGame() {
   $('s-start').classList.remove('on');
@@ -273,15 +350,31 @@ function endGame() {
   inp.removeEventListener('keydown', onKey);
   $('s-game').classList.remove('on');
   $('s-result').classList.add('on');
+
   const acc = allKeys > 0 ? Math.round(okKeys / allKeys * 100) : 100;
+  const wpm = Math.round(correct * (60 / maxTime));
+
+  // ハイスコア判定・保存
+  const prevHS = loadHS(diff);
+  const isNew = score > prevHS;
+  if (isNew) saveHS(diff, score);
+  const dispHS = isNew ? score : prevHS;
+
   $('r-score').textContent = score;
   $('r-correct').textContent = correct;
-  $('r-wpm').textContent = Math.round(correct * (60 / maxTime));
+  $('r-wpm').textContent = wpm;
   $('r-acc').textContent = acc + '%';
+  $('r-hs').textContent = dispHS;
+  $('r-newrecord').innerHTML = isNew
+    ? '<div class="new-record">🎉 NEW RECORD!</div>'
+    : '';
   $('r-stars').textContent = ['★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'][
     acc<60?0:acc<75?1:acc<85?2:acc<95?3:4];
 }
 
+// ===================================================
+// 単語ロード
+// ===================================================
 function getWord() {
   const pool = WORDS[diff];
   let av = pool.filter(w => !used.includes(w.k));
@@ -294,45 +387,40 @@ function nextWord() {
   const w = getWord();
   $('v-kanji').textContent = w.k;
   segs = parseKana(w.k);
-  si = 0; committed = ''; pending = ''; valid = [...segs[0].patterns];
-  inp.value = ''; $('v-err').textContent = '';
+  si=0; committed=''; pending=''; valid=[...segs[0].patterns];
+  inp.value=''; $('v-err').textContent='';
   render();
 }
 
 // ===================================================
-// キー入力（keydown で1文字ずつ処理）
+// キー入力
 // ===================================================
 function onKey(e) {
   if (!active || e.key.length !== 1) return;
   e.preventDefault();
 
-  const ch = e.key.toLowerCase(); // 大文字→小文字に正規化
+  const ch = e.key.toLowerCase();
   allKeys++;
 
   const trial = pending + ch;
   const matched = valid.filter(p => p.startsWith(trial));
 
   if (matched.length === 0) {
-    // ミス：pendingはリセットせず、ミスとして記録
     missCnt++;
     const exp = valid[0][pending.length] || '?';
     showErr(`✗ "${e.key}"  →  正しくは "${exp}"`);
-    updateStats();
-    return;
+    updateStats(); return;
   }
 
-  // 正解
   okKeys++;
   pending = trial;
   valid = matched;
 
-  // セグメント完了チェック（完全一致パターンが存在する）
   if (valid.find(p => p === pending)) {
     committed += pending;
     si++;
     pending = '';
     if (si >= segs.length) { wordDone(); return; }
-    // 次セグメントの全パターンを有効化（前のセグメントと独立）
     valid = [...segs[si].patterns];
   }
 
@@ -352,52 +440,31 @@ function wordDone() {
 function showErr(msg) {
   $('v-err').textContent = msg;
   inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err');
-  setTimeout(() => { inp.classList.remove('err'); $('v-err').textContent = ''; }, 600);
+  setTimeout(() => { inp.classList.remove('err'); $('v-err').textContent=''; }, 600);
 }
 
 // ===================================================
 // 表示レンダリング
-//
-// 【表示ルール】
-//  - committed（確定済み）: 入力した文字そのまま・緑
-//  - pending（入力中）: 入力した文字そのまま・緑
-//  - 現セグメント残り: valid[0] の pending 以降・紫(次)/灰(残)
-//  - 未来セグメント: segs[fi].patterns[0] 全体・灰
 // ===================================================
 function render() {
   let html = '';
-
-  // 確定済み（緑）
   for (const c of committed) html += `<span class="t">${c}</span>`;
-
   if (si < segs.length) {
-    // 現セグメントの入力済み部分（緑）
     for (const c of pending) html += `<span class="t">${c}</span>`;
-
-    // 現セグメントの残り（ガイド表示は valid[0] のpending以降）
-    const guide = valid[0];
-    const rest = guide.slice(pending.length);
-    for (let ri = 0; ri < rest.length; ri++) {
-      html += `<span class="${ri === 0 ? 'c' : 'r'}">${rest[ri]}</span>`;
-    }
-
-    // 未来セグメント（灰色、常に patterns[0] で表示）
-    for (let fi = si + 1; fi < segs.length; fi++) {
-      for (const c of segs[fi].patterns[0]) {
+    const rest = valid[0].slice(pending.length);
+    for (let ri=0; ri<rest.length; ri++)
+      html += `<span class="${ri===0?'c':'r'}">${rest[ri]}</span>`;
+    for (let fi=si+1; fi<segs.length; fi++)
+      for (const c of segs[fi].patterns[0])
         html += `<span class="r">${c}</span>`;
-      }
-    }
   }
-
   $('v-romaji').innerHTML = html;
 
-  // 別入力ヒント（現セグメントの代替パターン）
   const alts = valid.filter(p => p !== valid[0]);
   $('v-alt').innerHTML = alts.length
-    ? '別の入力: ' + alts.map(p => `<span class="badge">${p}</span>`).join(' ')
+    ? '別の入力: ' + alts.map(p=>`<span class="badge">${p}</span>`).join(' ')
     : '';
 
-  // 入力フィールドに入力済み文字を反映
   inp.value = committed + pending;
 }
 
@@ -406,6 +473,9 @@ function updateStats() {
   $('v-correct').textContent = correct;
   $('v-miss').textContent = missCnt;
 }
+
+// 初回ロード時にスタート画面のハイスコアを表示
+renderStartHS();
 </script>
 
 </body>
