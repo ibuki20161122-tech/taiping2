@@ -326,6 +326,25 @@ function goToStart() {
   renderStartHS();
 }
 
+// スタート音：上昇するファンファーレ風
+function soundStart() {
+  try {
+    const ctx = getAudio();
+    const notes = [523, 659, 784, 1047]; // ド・ミ・ソ・ド（高）
+    notes.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.1;
+      osc.frequency.setValueAtTime(f, t);
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      osc.start(t); osc.stop(t + 0.18);
+    });
+  } catch(e){}
+}
+
 // ===================================================
 // ゲーム開始 / 終了
 // ===================================================
@@ -335,6 +354,7 @@ function startGame() {
   score=0; correct=0; missCnt=0; okKeys=0; allKeys=0; used=[];
   maxTime = TIMES[diff]; timeLeft = maxTime;
   active = true;
+  soundStart();
   updateStats(); nextWord();
   inp.value = ''; inp.focus();
   inp.addEventListener('keydown', onKey);
@@ -394,6 +414,68 @@ function nextWord() {
 }
 
 // ===================================================
+// 効果音（WebAudio API）
+// ===================================================
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// 通常打鍵音：短いクリック
+function soundType() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(900, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.07);
+  } catch(e){}
+}
+
+// 単語完了音：明るいポップ
+function soundWord() {
+  try {
+    const ctx = getAudio();
+    const freqs = [880, 1100, 1320];
+    freqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.07;
+      osc.frequency.setValueAtTime(f, t);
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.start(t); osc.stop(t + 0.12);
+    });
+  } catch(e){}
+}
+
+// ミス音：低いブザー
+function soundMiss() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e){}
+}
+
+// ===================================================
 // キー入力
 // ===================================================
 function onKey(e) {
@@ -410,9 +492,11 @@ function onKey(e) {
     missCnt++;
     const exp = valid[0][pending.length] || '?';
     showErr(`✗ "${e.key}"  →  正しくは "${exp}"`);
+    soundMiss();
     updateStats(); return;
   }
 
+  soundType();
   okKeys++;
   pending = trial;
   valid = matched;
@@ -434,6 +518,7 @@ function wordDone() {
   correct++;
   const len = segs.reduce((s, sg) => s + sg.patterns[0].length, 0);
   score += Math.floor(len * (diff==='hard'?15:diff==='normal'?10:7));
+  soundWord();
   updateStats();
   nextWord();
 }
