@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -26,15 +25,19 @@
   .sl{font-size:.75rem;color:#6b7280;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
   .sv{font-family:'JetBrains Mono',monospace;font-size:clamp(1.3rem,3vw,2rem);font-weight:600;}
   .sv.ac{color:#a78bfa;}
-  .kanji{font-size:clamp(2.5rem,8vw,5rem);font-weight:700;color:#f0f0ff;min-height:4rem;text-align:center;}
+  .kanji{font-size:clamp(2.5rem,8vw,5rem);font-weight:700;color:#f0f0ff;min-height:5rem;text-align:center;line-height:1.2;}
+  .kanji ruby{display:inline-flex;flex-direction:column;align-items:center;line-height:1;}
+  .kanji rt{font-size:clamp(0.55rem,1.5vw,0.85rem);color:#a78bfa;letter-spacing:0.05em;font-weight:400;margin-bottom:2px;line-height:1;}
   .romaji{font-family:'JetBrains Mono',monospace;font-size:clamp(1.4rem,4vw,2.5rem);letter-spacing:.15em;min-height:2.5rem;text-align:center;}
   .t{color:#34d399;}
   .c{color:#a78bfa;text-shadow:0 0 12px rgba(167,139,250,.8);animation:blink .7s step-end infinite;}
   .r{color:#4b5563;}
   @keyframes blink{50%{opacity:.3;}}
-  #inp{width:100%;max-width:700px;background:rgba(255,255,255,.03);border:1px solid #374151;border-radius:8px;padding:1.1rem 1.8rem;font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,2.5vw,1.4rem);color:#e0e0f0;outline:none;caret-color:#a78bfa;transition:border-color .2s;}
-  #inp:focus{border-color:#a78bfa;box-shadow:0 0 0 2px rgba(167,139,250,.15);}
-  #inp.err{border-color:#ef4444;animation:shake .3s;}
+  #inp-display{width:100%;max-width:700px;background:rgba(255,255,255,.03);border:1px solid #a78bfa;border-radius:8px;padding:1.1rem 1.8rem;font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,2.5vw,1.4rem);color:#e0e0f0;min-height:3.6rem;letter-spacing:.08em;transition:border-color .2s;box-shadow:0 0 0 2px rgba(167,139,250,.15);display:flex;align-items:center;}
+  #inp-display.err{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.15)!important;animation:shake .3s;}
+  .inp-typed{color:#e0e0f0;}
+  .inp-placeholder{color:#374151;}
+  .inp-cursor{display:inline-block;width:2px;height:1.2em;background:#a78bfa;margin-left:2px;vertical-align:text-bottom;animation:blink .7s step-end infinite;}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
   .pb{width:100%;max-width:700px;height:5px;background:#1f2937;border-radius:2px;overflow:hidden;}
   .pbi{height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .1s linear;}
@@ -42,73 +45,67 @@
   .alt{font-size:.72rem;color:#4b5563;font-family:'JetBrains Mono',monospace;min-height:1rem;}
   .badge{display:inline-block;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:#a78bfa;font-size:.65rem;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;margin:0 2px;}
 
-/* ── リザルト ── */
-.rscore{font-family:‘JetBrains Mono’,monospace;font-size:4rem;font-weight:600;color:#a78bfa;text-shadow:0 0 40px rgba(167,139,250,.6);}
-.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:420px;}
-.ri{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.75rem;text-align:center;}
-.ri .v{font-family:‘JetBrains Mono’,monospace;font-size:1.4rem;font-weight:600;}
-.ri .l{font-size:.7rem;color:#6b7280;}
-.stars{font-size:1.2rem;color:#fbbf24;}
+  /* ── リザルト ── */
+  .rscore{font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:600;color:#a78bfa;text-shadow:0 0 40px rgba(167,139,250,.6);}
+  .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;width:100%;max-width:420px;}
+  .ri{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.75rem;text-align:center;}
+  .ri .v{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;}
+  .ri .l{font-size:.7rem;color:#6b7280;}
+  .stars{font-size:1.2rem;color:#fbbf24;}
 
-/* ── ハイスコアバナー ── */
-.hs-banner{
-display:flex;align-items:center;gap:.6rem;
-background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);
-border-radius:8px;padding:.6rem 1.2rem;font-family:‘JetBrains Mono’,monospace;
-font-size:.9rem;
-}
-.hs-banner .crown{font-size:1.1rem;}
-.hs-banner .hs-label{color:#6b7280;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;}
-.hs-banner .hs-val{color:#fbbf24;font-size:1.3rem;font-weight:600;}
-.new-record{
-font-family:‘JetBrains Mono’,monospace;font-size:.85rem;color:#34d399;
-letter-spacing:.1em;animation:pop .4s ease;
-}
-@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  /* ── ハイスコアバナー ── */
+  .hs-banner{
+    display:flex;align-items:center;gap:.6rem;
+    background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);
+    border-radius:8px;padding:.6rem 1.2rem;font-family:'JetBrains Mono',monospace;
+    font-size:.9rem;
+  }
+  .hs-banner .crown{font-size:1.1rem;}
+  .hs-banner .hs-label{color:#6b7280;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;}
+  .hs-banner .hs-val{color:#fbbf24;font-size:1.3rem;font-weight:600;}
+  .new-record{
+    font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#34d399;
+    letter-spacing:.1em;animation:pop .4s ease;
+  }
+  @keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 
-/* ── スタート画面のハイスコア表示 ── */
-.hs-grid{display:flex;gap:1rem;}
-.hs-card{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.6rem 1rem;text-align:center;min-width:90px;}
-.hs-card .hcl{font-size:.65rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
-.hs-card .hcv{font-family:‘JetBrains Mono’,monospace;font-size:1.1rem;color:#fbbf24;font-weight:600;}
+  /* ── スタート画面のハイスコア表示 ── */
+  .hs-grid{display:flex;gap:1rem;}
+  .hs-card{background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:8px;padding:.6rem 1rem;text-align:center;min-width:90px;}
+  .hs-card .hcl{font-size:.65rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+  .hs-card .hcv{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#fbbf24;font-weight:600;}
 
-.hint-line{font-size:.75rem;color:#374151;text-align:center;line-height:2;}
+  .hint-line{font-size:.75rem;color:#374151;text-align:center;line-height:2;}
 </style>
-
 </head>
 <body>
 <div id="root">
   <div class="scanlines"></div>
 
   <!-- ── スタート画面 ── -->
-
   <div id="s-start" class="on">
     <div class="title">もじぱち！</div>
     <div class="sub">ROMAJI TYPING GAME</div>
 
-```
-<!-- ハイスコア一覧 -->
-<div class="hs-grid" id="start-hs"></div>
+    <!-- ハイスコア一覧 -->
+    <div class="hs-grid" id="start-hs"></div>
 
-<div class="sub" style="font-size:.75rem;color:#374151;">難易度を選んでください</div>
-<div class="diffs">
-  <button class="db sel" data-d="easy">かんたん</button>
-  <button class="db" data-d="normal">ふつう</button>
-  <button class="db" data-d="hard">むずかしい</button>
-</div>
-<button class="btn" id="btn-start">ゲームスタート ▶</button>
-<div class="hint-line">
-  Space キーでスタート ／ 大文字・小文字どちらでもOK<br>
-  <span class="badge">shi</span><span class="badge">si</span>
-  <span class="badge">chi</span><span class="badge">ti</span>
-  <span class="badge">tsu</span><span class="badge">tu</span> など複数入力対応
-</div>
-```
-
+    <div class="sub" style="font-size:.75rem;color:#374151;">難易度を選んでください</div>
+    <div class="diffs">
+      <button class="db sel" data-d="easy">かんたん</button>
+      <button class="db" data-d="normal">ふつう</button>
+      <button class="db" data-d="hard">むずかしい</button>
+    </div>
+    <button class="btn" id="btn-start">ゲームスタート ▶</button>
+    <div class="hint-line">
+      Space キーでスタート ／ 大文字・小文字どちらでもOK<br>
+      <span class="badge">shi</span><span class="badge">si</span>
+      <span class="badge">chi</span><span class="badge">ti</span>
+      <span class="badge">tsu</span><span class="badge">tu</span> など複数入力対応
+    </div>
   </div>
 
   <!-- ── ゲーム画面 ── -->
-
   <div id="s-game">
     <div class="stats">
       <div class="sb"><div class="sl">スコア</div><div class="sv ac" id="v-score">0</div></div>
@@ -117,15 +114,14 @@ letter-spacing:.1em;animation:pop .4s ease;
       <div class="sb"><div class="sl">ミス</div><div class="sv" id="v-miss">0</div></div>
     </div>
     <div class="pb"><div class="pbi" id="pbi" style="width:100%"></div></div>
-    <div class="kanji" id="v-kanji">—</div>
+    <div class="kanji" id="v-kanji"></div>
     <div class="romaji" id="v-romaji"></div>
     <div class="alt" id="v-alt"></div>
-    <input id="inp" placeholder="ここに入力… (大文字小文字OK)" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div id="inp-display"></div>
     <div class="miss" id="v-err"></div>
   </div>
 
   <!-- ── リザルト画面 ── -->
-
   <div id="s-result">
     <div class="sub">RESULT</div>
     <div class="rscore" id="r-score">0</div>
@@ -141,7 +137,7 @@ letter-spacing:.1em;animation:pop .4s ease;
     </div>
     <div class="rgrid">
       <div class="ri"><div class="v" id="r-correct">0</div><div class="l">正答数</div></div>
-      <div class="ri"><div class="v" id="r-wpm">0</div><div class="l">WPM</div></div>
+      <div class="ri"><div class="v" id="r-miss">0</div><div class="l">ミスタイプ</div></div>
       <div class="ri"><div class="v" id="r-acc">0%</div><div class="l">正確率</div></div>
     </div>
     <button class="btn" id="btn-retry">もう一度 ↩  <span style="font-size:.7rem;opacity:.6;">Space</span></button>
@@ -170,41 +166,107 @@ function saveHS(d, val) {
 }
 
 // ===================================================
-// かな→ローマ字テーブル
+// かな→ローマ字テーブル（MS-IME2000 完全版）
+// 先頭が標準表示パターン、以降が代替入力
+// ん：単語末尾は nn 固定（parseKana内で処理）
 // ===================================================
 const TBL = {
-  'あ':['a'],'い':['i'],'う':['u'],'え':['e'],'お':['o'],
-  'か':['ka'],'き':['ki'],'く':['ku'],'け':['ke'],'こ':['ko'],
-  'さ':['sa'],'し':['shi','si'],'す':['su'],'せ':['se'],'そ':['so'],
-  'た':['ta'],'ち':['chi','ti'],'つ':['tsu','tu'],'て':['te'],'と':['to'],
-  'な':['na'],'に':['ni'],'ぬ':['nu'],'ね':['ne'],'の':['no'],
-  'は':['ha'],'ひ':['hi'],'ふ':['fu','hu'],'へ':['he'],'ほ':['ho'],
-  'ま':['ma'],'み':['mi'],'む':['mu'],'め':['me'],'も':['mo'],
-  'や':['ya'],'ゆ':['yu'],'よ':['yo'],
-  'ら':['ra'],'り':['ri'],'る':['ru'],'れ':['re'],'ろ':['ro'],
-  'わ':['wa'],'を':['wo'],'ん':['n','nn'],
+  // ── あ行 ──
+  'あ':['a'],'い':['i','yi'],'う':['u','wu','whu'],'え':['e'],'お':['o'],
+  'ぁ':['la','xa'],'ぃ':['li','xi','lyi','xyi'],'ぅ':['lu','xu'],
+  'ぇ':['le','xe','lye','xye'],'ぉ':['lo','xo'],
+  'いぇ':['ye'],
+  'うぁ':['wha'],'うぃ':['whi','wi'],'うぇ':['whe','we'],'うぉ':['who'],
+
+  // ── か行 ──
+  'か':['ka','ca'],'き':['ki'],'く':['ku','cu','qu'],'け':['ke'],'こ':['ko','co'],
+  'きゃ':['kya'],'きぃ':['kyi'],'きゅ':['kyu'],'きぇ':['kye'],'きょ':['kyo'],
+  'くぁ':['qwa','qa'],'くぃ':['qwi','qi'],'くぅ':['qwu'],'くぇ':['qwe','qe'],'くぉ':['qwo','qo'],
+  'くゃ':['qya'],'くゅ':['qyu'],'くょ':['qyo'],
+  // が行
   'が':['ga'],'ぎ':['gi'],'ぐ':['gu'],'げ':['ge'],'ご':['go'],
+  'ぎゃ':['gya'],'ぎぃ':['gyi'],'ぎゅ':['gyu'],'ぎぇ':['gye'],'ぎょ':['gyo'],
+  'ぐぁ':['gwa'],'ぐぃ':['gwi'],'ぐぅ':['gwu'],'ぐぇ':['gwe'],'ぐぉ':['gwo'],
+
+  // ── さ行 ──
+  'さ':['sa'],'し':['shi','si','ci'],'す':['su'],'せ':['se','ce'],'そ':['so'],
+  'しゃ':['sha','sya'],'しぃ':['syi'],'しゅ':['shu','syu'],'しぇ':['she','sye'],'しょ':['sho','syo'],
+  'すぁ':['swa'],'すぃ':['swi'],'すぅ':['swu'],'すぇ':['swe'],'すぉ':['swo'],
+  // ざ行
   'ざ':['za'],'じ':['ji','zi'],'ず':['zu'],'ぜ':['ze'],'ぞ':['zo'],
-  'だ':['da'],'で':['de'],'ど':['do'],
+  'じゃ':['ja','jya','zya'],'じぃ':['jyi','zyi'],'じゅ':['ju','jyu','zyu'],'じぇ':['je','jye','zye'],'じょ':['jo','jyo','zyo'],
+
+  // ── た行 ──
+  'た':['ta'],'ち':['chi','ti'],'つ':['tsu','tu'],'て':['te'],'と':['to'],
+  'ちゃ':['cha','tya','cya'],'ちぃ':['tyi','cyi'],'ちゅ':['chu','tyu','cyu'],'ちぇ':['che','tye','cye'],'ちょ':['cho','tyo','cyo'],
+  'つぁ':['tsa'],'つぃ':['tsi'],'つぇ':['tse'],'つぉ':['tso'],
+  'てゃ':['tha'],'てぃ':['thi'],'てゅ':['thu'],'てぇ':['the'],'てょ':['tho'],
+  'とぁ':['twa'],'とぃ':['twi'],'とぅ':['twu'],'とぇ':['twe'],'とぉ':['two'],
+  // だ行
+  'だ':['da'],'ぢ':['di'],'づ':['du'],'で':['de'],'ど':['do'],
+  'ぢゃ':['dya'],'ぢぃ':['dyi'],'ぢゅ':['dyu'],'ぢぇ':['dye'],'ぢょ':['dyo'],
+  'でゃ':['dha'],'でぃ':['dhi'],'でゅ':['dhu'],'でぇ':['dhe'],'でょ':['dho'],
+  'どぁ':['dwa'],'どぃ':['dwi'],'どぅ':['dwu'],'どぇ':['dwe'],'どぉ':['dwo'],
+
+  // ── な行 ──
+  'な':['na'],'に':['ni'],'ぬ':['nu'],'ね':['ne'],'の':['no'],
+  'にゃ':['nya'],'にぃ':['nyi'],'にゅ':['nyu'],'にぇ':['nye'],'にょ':['nyo'],
+
+  // ── は行 ──
+  'は':['ha'],'ひ':['hi'],'ふ':['fu','hu'],'へ':['he'],'ほ':['ho'],
+  'ひゃ':['hya'],'ひぃ':['hyi'],'ひゅ':['hyu'],'ひぇ':['hye'],'ひょ':['hyo'],
+  'ふぁ':['fa','fwa'],'ふぃ':['fi','fwi','fyi'],'ふぅ':['fwu'],'ふぇ':['fe','fwe','fye'],'ふぉ':['fo','fwo'],
+  'ふゃ':['fya'],'ふゅ':['fyu'],'ふょ':['fyo'],
+  // ば行
   'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
+  'びゃ':['bya'],'びぃ':['byi'],'びゅ':['byu'],'びぇ':['bye'],'びょ':['byo'],
+  // ぱ行
   'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
-  'きゃ':['kya'],'きゅ':['kyu'],'きょ':['kyo'],
-  'しゃ':['sha','sya'],'しゅ':['shu','syu'],'しょ':['sho','syo'],
-  'ちゃ':['cha','tya','cya'],'ちゅ':['chu','tyu','cyu'],'ちょ':['cho','tyo','cyo'],
-  'にゃ':['nya'],'にゅ':['nyu'],'にょ':['nyo'],
-  'ひゃ':['hya'],'ひゅ':['hyu'],'ひょ':['hyo'],
-  'みゃ':['mya'],'みゅ':['myu'],'みょ':['myo'],
-  'りゃ':['rya'],'りゅ':['ryu'],'りょ':['ryo'],
-  'ぎゃ':['gya'],'ぎゅ':['gyu'],'ぎょ':['gyo'],
-  'じゃ':['ja','jya','zya'],'じゅ':['ju','jyu','zyu'],'じょ':['jo','jyo','zyo'],
-  'びゃ':['bya'],'びゅ':['byu'],'びょ':['byo'],
-  'ぴゃ':['pya'],'ぴゅ':['pyu'],'ぴょ':['pyo'],
+  'ぴゃ':['pya'],'ぴぃ':['pyi'],'ぴゅ':['pyu'],'ぴぇ':['pye'],'ぴょ':['pyo'],
+
+  // ── ま行 ──
+  'ま':['ma'],'み':['mi'],'む':['mu'],'め':['me'],'も':['mo'],
+  'みゃ':['mya'],'みぃ':['myi'],'みゅ':['myu'],'みぇ':['mye'],'みょ':['myo'],
+
+  // ── や行 ──
+  'や':['ya'],'ゆ':['yu'],'よ':['yo'],
+  'ゃ':['lya','xya'],'ゅ':['lyu','xyu'],'ょ':['lyo','xyo'],
+
+  // ── ら行 ──
+  'ら':['ra'],'り':['ri'],'る':['ru'],'れ':['re'],'ろ':['ro'],
+  'りゃ':['rya'],'りぃ':['ryi'],'りゅ':['ryu'],'りぇ':['rye'],'りょ':['ryo'],
+
+  // ── わ行・ん ──
+  'わ':['wa'],'を':['wo'],
+  'ん':['nn'], // 単語末尾は必ず nn（parseKana内で制御）
+
+  // ── 長音符 ──
+  'ー':['-'],
+
+  // ── 外来語・特殊かな ──
+  'てぃ':['thi'],'てゅ':['thu'],
+  'でぃ':['dhi'],'でゅ':['dhu'],
+  'とぅ':['twu'],
+  'どぅ':['dwu'],
+  'ふぁ':['fa','fwa'],'ふぃ':['fi','fyi'],'ふぇ':['fe','fye'],'ふぉ':['fo'],
+  'うぃ':['whi','wi'],'うぇ':['whe','we'],'うぁ':['wha'],'うぉ':['who'],
+  'ゔぁ':['va'],'ゔぃ':['vi'],'ゔ':['vu'],'ゔぇ':['ve'],'ゔぉ':['vo'],
+  'いぇ':['ye'],
+  'くぁ':['qwa','qa'],'くぃ':['qwi'],'くぇ':['qwe'],'くぉ':['qwo'],
+
+  // ── 小文字単独 ──
+  'っ':['ltu','xtu','ltsu'], // parseKanaで促音処理するがフォールバック用
 };
 
 function parseKana(str) {
+  // カタカナをひらがなに変換（ー・ヴ等は保持）
+  str = str.replace(/[\u30A1-\u30F6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+
   const segs = [];
   let i = 0;
   while (i < str.length) {
+
+    // ─── 促音 っ ───
     if (str[i] === 'っ') {
       let nextPats = null;
       if (i + 1 < str.length) {
@@ -215,13 +277,43 @@ function parseKana(str) {
       const cSet = new Set();
       if (nextPats) for (const p of nextPats)
         if (/[bcdfghjklmnpqrstvwxyz]/.test(p[0])) cSet.add(p[0]);
-      segs.push({ kana:'っ', patterns: cSet.size ? [...cSet] : ['x'] });
+      segs.push({ kana:'っ', patterns: cSet.size ? [...cSet] : ['ltu'] });
       i++; continue;
     }
+
+    // ─── ん ───
+    if (str[i] === 'ん') {
+      const isLast = (i + 1 >= str.length);
+      // 末尾：nn のみ
+      // 次が母音(aiueo)またはn：nn または n' (ここでは nn のみ対応)
+      // 次が子音：n または nn どちらも可
+      if (isLast) {
+        segs.push({ kana:'ん', patterns: ['nn'] });
+      } else {
+        const nextChar = str[i+1];
+        const nextTwo = str.substring(i+1, i+3);
+        const nextPats = TBL[nextTwo] || TBL[nextChar] || [];
+        const nextFirstChar = nextPats.length > 0 ? nextPats[0][0] : nextChar;
+        if (/[aiueo]/.test(nextFirstChar) || nextChar === 'ん') {
+          // 母音・ん が続く場合：nn のみ（n単独だとかにになる等の誤変換防止）
+          segs.push({ kana:'ん', patterns: ['nn'] });
+        } else {
+          // 子音が続く場合：n または nn どちらも可
+          segs.push({ kana:'ん', patterns: ['n','nn'] });
+        }
+      }
+      i++; continue;
+    }
+
+    // ─── 3文字複合（てぃ・でぃ等は2文字なので不要。将来拡張用） ───
+
+    // ─── 2文字複合優先 ───
     if (i + 1 < str.length) {
       const two = str.substring(i, i+2);
       if (TBL[two]) { segs.push({ kana:two, patterns:TBL[two] }); i+=2; continue; }
     }
+
+    // ─── 1文字 ───
     const one = str[i];
     segs.push({ kana:one, patterns:TBL[one]||[one] });
     i++;
@@ -230,26 +322,81 @@ function parseKana(str) {
 }
 
 // ===================================================
-// 単語データ
+// 単語データ  k=ひらがな(入力用)  j=漢字表記(表示用)
 // ===================================================
 const WORDS = {
   easy:[
-    {k:'ねこ'},{k:'いぬ'},{k:'さかな'},{k:'りんご'},{k:'みず'},{k:'そら'},
-    {k:'はな'},{k:'つき'},{k:'やま'},{k:'かわ'},{k:'うみ'},{k:'きり'},
-    {k:'あさ'},{k:'ゆき'},{k:'かぜ'},{k:'ひかり'},{k:'くも'},{k:'でんき'},
+    {k:'ねこ',j:'猫'},{k:'いぬ',j:'犬'},{k:'そら',j:'空'},{k:'はな',j:'花'},
+    {k:'みず',j:'水'},{k:'やま',j:'山'},{k:'かわ',j:'川'},{k:'くるま',j:'車'},
+    {k:'でんしゃ',j:'電車'},{k:'たまご',j:'卵'},{k:'さかな',j:'魚'},
+    {k:'りんご',j:'林檎'},{k:'つき',j:'月'},{k:'うみ',j:'海'},{k:'きり',j:'霧'},
+    {k:'あさ',j:'朝'},{k:'ゆき',j:'雪'},{k:'かぜ',j:'風'},{k:'ひかり',j:'光'},
+    {k:'くも',j:'雲'},{k:'でんき',j:'電気'},{k:'いえ',j:'家'},{k:'まち',j:'町'},
+    {k:'そと',j:'外'},{k:'なか',j:'中'},{k:'うえ',j:'上'},{k:'した',j:'下'},
+    {k:'あお',j:'青'},{k:'あか',j:'赤'},{k:'しろ',j:'白'},{k:'くろ',j:'黒'},
+    {k:'みどり',j:'緑'},{k:'きいろ',j:'黄色'},{k:'もも',j:'桃'},{k:'なし',j:'梨'},
+    {k:'かき',j:'柿'},{k:'すいか',j:'西瓜'},{k:'ぶどう',j:'葡萄'},
+    {k:'いちご',j:'苺'},{k:'ごはん',j:'御飯'},{k:'パン',j:'パン'},
+    {k:'にく',j:'肉'},{k:'やさい',j:'野菜'},{k:'くだもの',j:'果物'},
+    {k:'おちゃ',j:'お茶'},{k:'ぎゅうにゅう',j:'牛乳'},{k:'たいこ',j:'太鼓'},
+    {k:'ふえ',j:'笛'},{k:'ほし',j:'星'},{k:'にじ',j:'虹'},
   ],
   normal:[
-    {k:'さくらんぼ'},{k:'どうぶつ'},{k:'しんかんせん'},{k:'たいよう'},
-    {k:'こうえん'},{k:'えいご'},{k:'でんしゃ'},{k:'きょうしつ'},
-    {k:'おんがく'},{k:'しょくじ'},{k:'がっこう'},{k:'ともだち'},
-    {k:'にほんご'},{k:'かいもの'},{k:'おきなわ'},{k:'ふじさん'},{k:'しゅくだい'},
+    {k:'さくらんぼ',j:'桜桃'},{k:'しんごうき',j:'信号機'},
+    {k:'じてんしゃ',j:'自転車'},{k:'どうぶつえん',j:'動物園'},
+    {k:'ゆうえんち',j:'遊園地'},{k:'たんじょうび',j:'誕生日'},
+    {k:'おべんとう',j:'お弁当'},{k:'うちゅうせん',j:'宇宙船'},
+    {k:'かんらんしゃ',j:'観覧車'},{k:'えんぴつけずり',j:'鉛筆削り'},
+    {k:'どうぶつ',j:'動物'},{k:'しんかんせん',j:'新幹線'},
+    {k:'たいよう',j:'太陽'},{k:'こうえん',j:'公園'},
+    {k:'えいご',j:'英語'},{k:'きょうしつ',j:'教室'},
+    {k:'おんがく',j:'音楽'},{k:'しょくじ',j:'食事'},
+    {k:'がっこう',j:'学校'},{k:'ともだち',j:'友達'},
+    {k:'にほんご',j:'日本語'},{k:'かいもの',j:'買い物'},
+    {k:'おきなわ',j:'沖縄'},{k:'ふじさん',j:'富士山'},
+    {k:'しゅくだい',j:'宿題'},{k:'ほんだな',j:'本棚'},
+    {k:'てがみ',j:'手紙'},{k:'でんわ',j:'電話'},
+    {k:'かいぎ',j:'会議'},{k:'りょこう',j:'旅行'},
+    {k:'しゃしん',j:'写真'},{k:'おまつり',j:'お祭り'},
+    {k:'うんどうかい',j:'運動会'},{k:'すいえい',j:'水泳'},
+    {k:'やきゅう',j:'野球'},{k:'サッカー',j:'サッカー'},
+    {k:'テニス',j:'テニス'},{k:'バスケ',j:'バスケ'},
+    {k:'たいそう',j:'体操'},{k:'けんどう',j:'剣道'},
+    {k:'じゅうどう',j:'柔道'},{k:'からて',j:'空手'},
+    {k:'すもう',j:'相撲'},{k:'ひゃっかじてん',j:'百科事典'},
+    {k:'としょかん',j:'図書館'},{k:'はくぶつかん',j:'博物館'},
+    {k:'すいぞくかん',j:'水族館'},
   ],
   hard:[
-    {k:'しゅっぱつ'},{k:'きんきゅう'},{k:'りょこうしゃ'},{k:'さんぽみち'},
-    {k:'しんぶんしゃ'},{k:'けいたいでんわ'},{k:'しゅとけん'},
-    {k:'きょうそうてき'},{k:'ぼうさいくんれん'},{k:'じゅうしょ'},
-    {k:'しょっぱい'},{k:'きって'},{k:'ざっし'},
-    {k:'ちょっかん'},{k:'しっかり'},{k:'ぴったり'},{k:'しゅくだい'},
+    {k:'ぷろぐらみんぐ',j:'プログラミング'},
+    {k:'こみゅにけーしょん',j:'コミュニケーション'},
+    {k:'いんふぉめーしょん',j:'インフォメーション'},
+    {k:'てくのろじー',j:'テクノロジー'},
+    {k:'きしょうえいせい',j:'気象衛星'},
+    {k:'でーたべーす',j:'データベース'},
+    {k:'あるごりずむ',j:'アルゴリズム'},
+    {k:'ねっとわーくせきゅりてぃ',j:'ネットワークセキュリティ'},
+    {k:'すーぱーこんぴゅーたー',j:'スーパーコンピューター'},
+    {k:'しゅっぱつ',j:'出発'},{k:'きんきゅう',j:'緊急'},
+    {k:'りょこうしゃ',j:'旅行者'},{k:'さんぽみち',j:'散歩道'},
+    {k:'しんぶんしゃ',j:'新聞社'},{k:'けいたいでんわ',j:'携帯電話'},
+    {k:'しゅとけん',j:'首都圏'},{k:'きょうそうてき',j:'競争的'},
+    {k:'ぼうさいくんれん',j:'防災訓練'},{k:'じゅうしょ',j:'住所'},
+    {k:'しょっぱい',j:'塩っぱい'},{k:'きって',j:'切手'},
+    {k:'ざっし',j:'雑誌'},{k:'ちょっかん',j:'直感'},
+    {k:'しっかり',j:'しっかり'},{k:'ぴったり',j:'ぴったり'},
+    {k:'あーてぃふぃしゃるいんてりじぇんす',j:'AI（人工知能）'},
+    {k:'いんたーねっと',j:'インターネット'},
+    {k:'すまーとふぉん',j:'スマートフォン'},
+    {k:'くらうどこんぴゅーてぃんぐ',j:'クラウドコンピューティング'},
+    {k:'きかいがくしゅう',j:'機械学習'},
+    {k:'でぃーぷらーにんぐ',j:'ディープラーニング'},
+    {k:'ぶろっくちぇーん',j:'ブロックチェーン'},
+    {k:'さいばーせきゅりてぃ',j:'サイバーセキュリティ'},
+    {k:'おーぷんそーす',j:'オープンソース'},
+    {k:'ふれーむわーく',j:'フレームワーク'},
+    {k:'いんふらすとらくちゃー',j:'インフラストラクチャー'},
+    {k:'でぃべろっぱー',j:'デベロッパー'},
   ],
 };
 const TIMES = {easy:60, normal:50, hard:40};
@@ -265,7 +412,7 @@ let used=[];
 let segs=[], si=0, committed='', pending='', valid=[];
 
 const $ = id => document.getElementById(id);
-const inp = $('inp');
+const inpDisplay = $('inp-display');
 
 // ===================================================
 // スタート画面のハイスコア表示
@@ -301,23 +448,50 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     clearInterval(tmr);
     active = false;
-    inp.removeEventListener('keydown', onKey);
     $('s-game').classList.remove('on');
     $('s-start').classList.add('on');
     renderStartHS();
     return;
   }
-
-  if (e.code !== 'Space') return;
-
-  // スタート画面: Space でゲーム開始
-  if (!active && $('s-start').classList.contains('on')) {
-    e.preventDefault(); startGame(); return;
+  // Space: スタート or リザルト → 次へ
+  if (e.code === 'Space') {
+    if (!active && $('s-start').classList.contains('on')) { e.preventDefault(); startGame(); return; }
+    if (!active && $('s-result').classList.contains('on')) { e.preventDefault(); goToStart(); return; }
   }
-  // リザルト画面: Space でスタート画面に戻る
-  if (!active && $('s-result').classList.contains('on')) {
-    e.preventDefault(); goToStart(); return;
+  // ゲーム中のタイピング
+  if (!active || e.key.length !== 1) return;
+  e.preventDefault();
+
+  const ch = e.key.toLowerCase();
+  allKeys++;
+
+  const trial = pending + ch;
+  const matched = valid.filter(p => p.startsWith(trial));
+
+  if (matched.length === 0) {
+    missCnt++;
+    const exp = valid[0][pending.length] || '?';
+    showErr(`✗ "${e.key}"  →  正しくは "${exp}"`);
+    soundMiss();
+    updateStats(); return;
   }
+
+  soundType();
+  okKeys++;
+  pending = trial;
+  valid = matched;
+
+  if (valid.find(p => p === pending)) {
+    committed += pending;
+    si++;
+    pending = '';
+    if (si >= segs.length) { wordDone(); return; }
+    valid = [...segs[si].patterns];
+  }
+
+  $('v-err').textContent = '';
+  updateStats();
+  render();
 });
 
 function goToStart() {
@@ -356,8 +530,6 @@ function startGame() {
   active = true;
   soundStart();
   updateStats(); nextWord();
-  inp.value = ''; inp.focus();
-  inp.addEventListener('keydown', onKey);
   tmr = setInterval(() => {
     timeLeft--;
     $('v-time').textContent = timeLeft;
@@ -368,12 +540,10 @@ function startGame() {
 
 function endGame() {
   clearInterval(tmr); active = false;
-  inp.removeEventListener('keydown', onKey);
   $('s-game').classList.remove('on');
   $('s-result').classList.add('on');
 
   const acc = allKeys > 0 ? Math.round(okKeys / allKeys * 100) : 100;
-  const wpm = Math.round(correct * (60 / maxTime));
 
   // ハイスコア判定・保存
   const prevHS = loadHS(diff);
@@ -383,7 +553,7 @@ function endGame() {
 
   $('r-score').textContent = score;
   $('r-correct').textContent = correct;
-  $('r-wpm').textContent = wpm;
+  $('r-miss').textContent = missCnt;
   $('r-acc').textContent = acc + '%';
   $('r-hs').textContent = dispHS;
   $('r-newrecord').innerHTML = isNew
@@ -406,10 +576,11 @@ function getWord() {
 
 function nextWord() {
   const w = getWord();
-  $('v-kanji').textContent = w.k;
+  // ruby タグで漢字＋ふりがな表示
+  $('v-kanji').innerHTML = `<ruby>${w.j}<rt>${w.k}</rt></ruby>`;
   segs = parseKana(w.k);
   si=0; committed=''; pending=''; valid=[...segs[0].patterns];
-  inp.value=''; $('v-err').textContent='';
+  $('v-err').textContent='';
   render();
 }
 
@@ -475,45 +646,6 @@ function soundMiss() {
   } catch(e){}
 }
 
-// ===================================================
-// キー入力
-// ===================================================
-function onKey(e) {
-  if (!active || e.key.length !== 1) return;
-  e.preventDefault();
-
-  const ch = e.key.toLowerCase();
-  allKeys++;
-
-  const trial = pending + ch;
-  const matched = valid.filter(p => p.startsWith(trial));
-
-  if (matched.length === 0) {
-    missCnt++;
-    const exp = valid[0][pending.length] || '?';
-    showErr(`✗ "${e.key}"  →  正しくは "${exp}"`);
-    soundMiss();
-    updateStats(); return;
-  }
-
-  soundType();
-  okKeys++;
-  pending = trial;
-  valid = matched;
-
-  if (valid.find(p => p === pending)) {
-    committed += pending;
-    si++;
-    pending = '';
-    if (si >= segs.length) { wordDone(); return; }
-    valid = [...segs[si].patterns];
-  }
-
-  $('v-err').textContent = '';
-  updateStats();
-  render();
-}
-
 function wordDone() {
   correct++;
   const len = segs.reduce((s, sg) => s + sg.patterns[0].length, 0);
@@ -525,8 +657,8 @@ function wordDone() {
 
 function showErr(msg) {
   $('v-err').textContent = msg;
-  inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err');
-  setTimeout(() => { inp.classList.remove('err'); $('v-err').textContent=''; }, 600);
+  inpDisplay.classList.remove('err'); void inpDisplay.offsetWidth; inpDisplay.classList.add('err');
+  setTimeout(() => { inpDisplay.classList.remove('err'); $('v-err').textContent=''; }, 600);
 }
 
 // ===================================================
@@ -551,7 +683,11 @@ function render() {
     ? '別の入力: ' + alts.map(p=>`<span class="badge">${p}</span>`).join(' ')
     : '';
 
-  inp.value = committed + pending;
+  // inp-display に入力済み文字＋カーソルを表示
+  const typed = committed + pending;
+  inpDisplay.innerHTML = typed
+    ? `<span class="inp-typed">${typed}</span><span class="inp-cursor"></span>`
+    : `<span class="inp-placeholder">キーボードで入力…</span>`;
 }
 
 function updateStats() {
@@ -563,6 +699,5 @@ function updateStats() {
 // 初回ロード時にスタート画面のハイスコアを表示
 renderStartHS();
 </script>
-
 </body>
 </html>
